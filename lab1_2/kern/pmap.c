@@ -139,7 +139,9 @@ mem_init(void)
 	//      (ie. perm = PTE_U | PTE_P)
 	//    - pages itself -- kernel RW, user NONE
 	// Your code goes here:
-	
+	// 
+	// 将以UPAGES开始npages个页长的虚拟地址
+	// 映射到以pages开始的物理地址上
    boot_map_region(kern_pgdir, 
                     UPAGES, 
                     ROUNDUP((sizeof(struct PageInfo)*npages), PGSIZE),
@@ -157,6 +159,9 @@ mem_init(void)
 	//       overwrite memory.  Known as a "guard page".
 	//     Permissions: kernel RW, user NONE
 	// Your code goes here:
+	
+	// [KSTACKTOP-PTSIZE, KSTACKTOP-KSTKSIZE)不被利用，不做映射
+	// [KSTACKTOP-KSTKSIZE, KSTACKTOP) 映射到bootstack开始的物理地址
     boot_map_region(kern_pgdir, 
                     (KSTACKTOP-KSTKSIZE), 
                     KSTKSIZE,
@@ -171,6 +176,9 @@ mem_init(void)
 	// we just set up the mapping anyway.
 	// Permissions: kernel RW, user NONE
 	// Your code goes here:
+	
+	// KERNBASE以上的所有虚拟地址
+	// 均映射到物理地址的0位置
     boot_map_region(kern_pgdir, 
                     KERNBASE, 
                     ROUNDUP((0xFFFFFFFF-KERNBASE), PGSIZE),
