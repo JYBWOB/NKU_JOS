@@ -142,11 +142,12 @@ mem_init(void)
 	// 
 	// 将以UPAGES开始npages个页长的虚拟地址
 	// 映射到以pages开始的物理地址上
-   boot_map_region(kern_pgdir, 
-                    UPAGES, 
-                    ROUNDUP((sizeof(struct PageInfo)*npages), PGSIZE),
-                    PADDR(pages), 
-                    (PTE_U));
+	boot_map_region(
+		kern_pgdir, //页目录
+	    UPAGES, // 虚拟地址
+	    ROUNDUP((sizeof(struct PageInfo)*npages), PGSIZE), //映射地址长度
+	    PADDR(pages), // 物理地址
+	    PTE_U); //权限位
 
 	//////////////////////////////////////////////////////////////////////
 	// Use the physical memory that 'bootstack' refers to as the kernel
@@ -162,11 +163,11 @@ mem_init(void)
 	
 	// [KSTACKTOP-PTSIZE, KSTACKTOP-KSTKSIZE)不被利用，不做映射
 	// [KSTACKTOP-KSTKSIZE, KSTACKTOP) 映射到bootstack开始的物理地址
-    boot_map_region(kern_pgdir, 
-                    (KSTACKTOP-KSTKSIZE), 
-                    KSTKSIZE,
-                    PADDR(bootstack), 
-                    (PTE_W));
+    boot_map_region(kern_pgdir, // 页目录
+        (KSTACKTOP-KSTKSIZE), // 映射的虚拟地址位置 起始=终止-长度
+        KSTKSIZE, // 长度
+        PADDR(bootstack), // bootstack对应物理地址
+        PTE_W); // 内核可写
 
 	//////////////////////////////////////////////////////////////////////
 	// Map all of physical memory at KERNBASE.
@@ -179,11 +180,11 @@ mem_init(void)
 	
 	// KERNBASE以上的所有虚拟地址
 	// 均映射到物理地址的0位置
-    boot_map_region(kern_pgdir, 
-                    KERNBASE, 
-                    ROUNDUP((0xFFFFFFFF-KERNBASE), PGSIZE),
-                    0, 
-                    (PTE_W));
+    boot_map_region(kern_pgdir, // 页目录
+        KERNBASE, // 0xf0000000
+        ROUNDUP((0xFFFFFFFF-KERNBASE), PGSIZE), // 长度
+        0, // 物理地址
+        PTE_W); // 内核可写
 
 	// Check that the initial page directory has been set up correctly.
 	check_kern_pgdir();
